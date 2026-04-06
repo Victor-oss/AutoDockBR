@@ -1,0 +1,16 @@
+version: '3.8'
+services:
+  autodockbr-postgresql:
+    image: postgres:14.5
+    volumes:
+      - ~/.AutoDockBR/postgresql/:/var/lib/postgresql/data/
+    environment:
+      - POSTGRES_USER=AutoDockBR
+      - POSTGRES_PASSWORD=admin
+      - POSTGRES_HOST_AUTH_METHOD=trust
+    ports:
+      - 127.0.0.1:5432:5432
+  autodockbr-redis:
+    image: redis:6.2.7
+    ports:
+      - 127.0.0.1:6379:6379

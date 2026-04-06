@@ -1,5 +1,18 @@
 # AutoDockBR
 
+```
+docker-compose -f src/main/docker/postgresql_redis.yml up
+```
+
+```
+docker-compose -f src/main/docker/postgresql_redis.yml down
+```
+
+```
+./mvnw
+npm start
+```
+
 This application was generated using JHipster 7.9.4, you can find documentation and help at [https://www.jhipster.tech/documentation-archive/v7.9.4](https://www.jhipster.tech/documentation-archive/v7.9.4).
 
 ## Project Structure
@@ -58,11 +71,6 @@ the same CacheManager.
 
 Run the following commands in two separate terminals to create a blissful development experience where your browser
 auto-refreshes when files change on your hard drive.
-
-```
-./mvnw
-npm start
-```
 
 Npm is also used to manage CSS and JavaScript dependencies used in this application. You can upgrade dependencies by
 specifying a newer version in [package.json](package.json). You can also run `npm update` and `npm install` to manage dependencies.
