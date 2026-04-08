@@ -35,10 +35,6 @@ public class AdminUserDTO implements Serializable {
 
     private Instant createdDate;
 
-    private String lastModifiedBy;
-
-    private Instant lastModifiedDate;
-
     public AdminUserDTO() {
         // Empty constructor needed for Jackson.
     }
@@ -51,8 +47,6 @@ public class AdminUserDTO implements Serializable {
         this.activated = user.isActivated();
         this.createdBy = user.getCreatedBy();
         this.createdDate = user.getCreatedDate();
-        this.lastModifiedBy = user.getLastModifiedBy();
-        this.lastModifiedDate = user.getLastModifiedDate();
     }
 
     public Long getId() {
@@ -119,22 +113,6 @@ public class AdminUserDTO implements Serializable {
         this.createdDate = createdDate;
     }
 
-    public String getLastModifiedBy() {
-        return lastModifiedBy;
-    }
-
-    public void setLastModifiedBy(String lastModifiedBy) {
-        this.lastModifiedBy = lastModifiedBy;
-    }
-
-    public Instant getLastModifiedDate() {
-        return lastModifiedDate;
-    }
-
-    public void setLastModifiedDate(Instant lastModifiedDate) {
-        this.lastModifiedDate = lastModifiedDate;
-    }
-
     // prettier-ignore
     @Override
     public String toString() {
@@ -145,8 +123,6 @@ public class AdminUserDTO implements Serializable {
             ", activated=" + activated +
             ", createdBy=" + createdBy +
             ", createdDate=" + createdDate +
-            ", lastModifiedBy='" + lastModifiedBy + '\'' +
-            ", lastModifiedDate=" + lastModifiedDate +
             "}";
     }
 }

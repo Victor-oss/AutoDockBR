@@ -15,7 +15,7 @@
         The initial schema has the '00000000000001' id, so that it is over-written if we re-generate it.
     -->
     <changeSet id="00000000000001" author="jhipster">
-        <createTable tableName="user">
+        <createTable tableName="usuario">
             <column name="id" type="bigint">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
@@ -43,7 +43,7 @@
 
         <addNotNullConstraint   columnName="password_hash"
                                 columnDataType="varchar(60)"
-                                tableName="user"/>
+                                tableName="usuario"/>
     </changeSet>
 
     <changeSet author="jhipster" id="00000000000002" context="test">
