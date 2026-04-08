@@ -1,6 +1,5 @@
 package br.com.autodockbr.service.mapper;
 
-import br.com.autodockbr.domain.Authority;
 import br.com.autodockbr.domain.User;
 import br.com.autodockbr.service.dto.AdminUserDTO;
 import br.com.autodockbr.service.dto.UserDTO;
@@ -46,35 +45,12 @@ public class UserMapper {
         } else {
             User user = new User();
             user.setId(userDTO.getId());
-            user.setLogin(userDTO.getLogin());
-            user.setFirstName(userDTO.getFirstName());
-            user.setLastName(userDTO.getLastName());
             user.setEmail(userDTO.getEmail());
-            user.setImageUrl(userDTO.getImageUrl());
+            user.setName(userDTO.getName());
+            user.setDescription(userDTO.getDescription());
             user.setActivated(userDTO.isActivated());
-            user.setLangKey(userDTO.getLangKey());
-            Set<Authority> authorities = this.authoritiesFromStrings(userDTO.getAuthorities());
-            user.setAuthorities(authorities);
             return user;
         }
-    }
-
-    private Set<Authority> authoritiesFromStrings(Set<String> authoritiesAsString) {
-        Set<Authority> authorities = new HashSet<>();
-
-        if (authoritiesAsString != null) {
-            authorities =
-                authoritiesAsString
-                    .stream()
-                    .map(string -> {
-                        Authority auth = new Authority();
-                        auth.setName(string);
-                        return auth;
-                    })
-                    .collect(Collectors.toSet());
-        }
-
-        return authorities;
     }
 
     public User userFromId(Long id) {
@@ -117,21 +93,21 @@ public class UserMapper {
     @Named("login")
     @BeanMapping(ignoreByDefault = true)
     @Mapping(target = "id", source = "id")
-    @Mapping(target = "login", source = "login")
+    @Mapping(target = "email", source = "email")
     public UserDTO toDtoLogin(User user) {
         if (user == null) {
             return null;
         }
         UserDTO userDto = new UserDTO();
         userDto.setId(user.getId());
-        userDto.setLogin(user.getLogin());
+        userDto.setEmail(user.getEmail());
         return userDto;
     }
 
     @Named("loginSet")
     @BeanMapping(ignoreByDefault = true)
     @Mapping(target = "id", source = "id")
-    @Mapping(target = "login", source = "login")
+    @Mapping(target = "email", source = "email")
     public Set<UserDTO> toDtoLoginSet(Set<User> users) {
         if (users == null) {
             return Collections.emptySet();

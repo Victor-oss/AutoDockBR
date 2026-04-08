@@ -4,10 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import br.com.autodockbr.IntegrationTest;
-import br.com.autodockbr.config.Constants;
 import br.com.autodockbr.domain.User;
 import br.com.autodockbr.repository.UserRepository;
-import br.com.autodockbr.service.dto.AdminUserDTO;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
@@ -20,8 +18,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.auditing.AuditingHandler;
 import org.springframework.data.auditing.DateTimeProvider;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.transaction.annotation.Transactional;
 import tech.jhipster.security.RandomUtil;
 
@@ -32,17 +28,9 @@ import tech.jhipster.security.RandomUtil;
 @Transactional
 class UserServiceIT {
 
-    private static final String DEFAULT_LOGIN = "johndoe";
-
     private static final String DEFAULT_EMAIL = "johndoe@localhost";
 
     private static final String DEFAULT_FIRSTNAME = "john";
-
-    private static final String DEFAULT_LASTNAME = "doe";
-
-    private static final String DEFAULT_IMAGEURL = "http://placehold.it/50x50";
-
-    private static final String DEFAULT_LANGKEY = "dummy";
 
     @Autowired
     private UserRepository userRepository;
@@ -61,14 +49,10 @@ class UserServiceIT {
     @BeforeEach
     public void init() {
         user = new User();
-        user.setLogin(DEFAULT_LOGIN);
         user.setPassword(RandomStringUtils.randomAlphanumeric(60));
         user.setActivated(true);
         user.setEmail(DEFAULT_EMAIL);
-        user.setFirstName(DEFAULT_FIRSTNAME);
-        user.setLastName(DEFAULT_LASTNAME);
-        user.setImageUrl(DEFAULT_IMAGEURL);
-        user.setLangKey(DEFAULT_LANGKEY);
+        user.setName(DEFAULT_FIRSTNAME);
 
         when(dateTimeProvider.getNow()).thenReturn(Optional.of(LocalDateTime.now()));
         auditingHandler.setDateTimeProvider(dateTimeProvider);
@@ -94,7 +78,7 @@ class UserServiceIT {
         user.setActivated(false);
         userRepository.saveAndFlush(user);
 
-        Optional<User> maybeUser = userService.requestPasswordReset(user.getLogin());
+        Optional<User> maybeUser = userService.requestPasswordReset(user.getEmail());
         assertThat(maybeUser).isNotPresent();
         userRepository.delete(user);
     }
@@ -161,7 +145,6 @@ class UserServiceIT {
         Instant threeDaysAgo = now.minus(3, ChronoUnit.DAYS);
         List<User> users = userRepository.findAllByActivatedIsFalseAndActivationKeyIsNotNullAndCreatedDateBefore(threeDaysAgo);
         assertThat(users).isNotEmpty();
-        userService.removeNotActivatedUsers();
         users = userRepository.findAllByActivatedIsFalseAndActivationKeyIsNotNullAndCreatedDateBefore(threeDaysAgo);
         assertThat(users).isEmpty();
     }
@@ -178,7 +161,6 @@ class UserServiceIT {
         Instant threeDaysAgo = now.minus(3, ChronoUnit.DAYS);
         List<User> users = userRepository.findAllByActivatedIsFalseAndActivationKeyIsNotNullAndCreatedDateBefore(threeDaysAgo);
         assertThat(users).isEmpty();
-        userService.removeNotActivatedUsers();
         Optional<User> maybeDbUser = userRepository.findById(dbUser.getId());
         assertThat(maybeDbUser).contains(dbUser);
     }

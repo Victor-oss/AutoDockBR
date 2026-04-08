@@ -3,7 +3,6 @@ package br.com.autodockbr.security.jwt;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import br.com.autodockbr.management.SecurityMetersService;
-import br.com.autodockbr.security.AuthoritiesConstants;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
@@ -17,7 +16,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.test.util.ReflectionTestUtils;
 import tech.jhipster.config.JHipsterProperties;
 
@@ -118,7 +116,6 @@ class TokenProviderTest {
 
     private Authentication createAuthentication() {
         Collection<GrantedAuthority> authorities = new ArrayList<>();
-        authorities.add(new SimpleGrantedAuthority(AuthoritiesConstants.ANONYMOUS));
         return new UsernamePasswordAuthenticationToken("anonymous", "anonymous", authorities);
     }
 

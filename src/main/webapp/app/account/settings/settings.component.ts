@@ -14,24 +14,18 @@ export class SettingsComponent implements OnInit {
   success = false;
 
   settingsForm = new FormGroup({
-    firstName: new FormControl(initialAccount.firstName, {
+    name: new FormControl(initialAccount.name as string, {
       nonNullable: true,
-      validators: [Validators.required, Validators.minLength(1), Validators.maxLength(50)],
+      validators: [Validators.required, Validators.minLength(4), Validators.maxLength(255)],
     }),
-    lastName: new FormControl(initialAccount.lastName, {
-      nonNullable: true,
-      validators: [Validators.required, Validators.minLength(1), Validators.maxLength(50)],
+    description: new FormControl(initialAccount.description as string | null, {
+      nonNullable: false,
+      validators: [Validators.maxLength(255)],
     }),
     email: new FormControl(initialAccount.email, {
       nonNullable: true,
       validators: [Validators.required, Validators.minLength(5), Validators.maxLength(254), Validators.email],
     }),
-    langKey: new FormControl(initialAccount.langKey, { nonNullable: true }),
-
-    activated: new FormControl(initialAccount.activated, { nonNullable: true }),
-    authorities: new FormControl(initialAccount.authorities, { nonNullable: true }),
-    imageUrl: new FormControl(initialAccount.imageUrl, { nonNullable: true }),
-    login: new FormControl(initialAccount.login, { nonNullable: true }),
   });
 
   constructor(private accountService: AccountService) {}
@@ -39,7 +33,11 @@ export class SettingsComponent implements OnInit {
   ngOnInit(): void {
     this.accountService.identity().subscribe(account => {
       if (account) {
-        this.settingsForm.patchValue(account);
+        this.settingsForm.patchValue({
+          name: (account as any).name,
+          description: (account as any).description,
+          email: account.email,
+        });
       }
     });
   }

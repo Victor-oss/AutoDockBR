@@ -9,8 +9,6 @@
 
       <div class="alert alert-danger" *ngIf="error"><strong>Erro ao realizar o cadastro!</strong> Favor tentar novamente mais tarde.</div>
 
-      <div class="alert alert-danger" *ngIf="errorUserExists"><strong>Usuário já registrado!</strong> Favor escolher outro.</div>
-
       <div class="alert alert-danger" *ngIf="errorEmailExists"><strong>E-mail já está em uso!</strong> Por favor informe outro.</div>
 
       <div class="alert alert-danger" *ngIf="doNotMatch">A senha e sua confirmação devem ser iguais!</div>
@@ -21,30 +19,28 @@
     <div class="col-md-8">
       <form name="form" role="form" (ngSubmit)="register()" [formGroup]="registerForm" *ngIf="!success">
         <div class="mb-3">
-          <label class="form-label" for="login">Usuário</label>
+          <label class="form-label" for="name">Nome</label>
           <input
             type="text"
             class="form-control"
-            id="login"
-            name="login"
-            placeholder="Seu usuário"
-            formControlName="login"
-            data-cy="username"
-            #login
+            id="name"
+            name="name"
+            placeholder="Seu nome"
+            formControlName="name"
+            data-cy="name"
+            #name
           />
 
-          <div *ngIf="registerForm.get('login')!.invalid && (registerForm.get('login')!.dirty || registerForm.get('login')!.touched)">
-            <small class="form-text text-danger" *ngIf="registerForm.get('login')?.errors?.required"> O usuário é obrigatório. </small>
+          <div *ngIf="registerForm.get('name')!.invalid && (registerForm.get('name')!.dirty || registerForm.get('name')!.touched)">
+            <small class="form-text text-danger" *ngIf="registerForm.get('name')?.errors?.required"> O nome é obrigatório. </small>
 
-            <small class="form-text text-danger" *ngIf="registerForm.get('login')?.errors?.minlength">
-              O usuário deve ter pelo menos 1 caractere.
+            <small class="form-text text-danger" *ngIf="registerForm.get('name')?.errors?.minlength">
+              O nome deve ter pelo menos 4 caracteres.
             </small>
 
-            <small class="form-text text-danger" *ngIf="registerForm.get('login')?.errors?.maxlength">
-              O usuário não pode ter mais de 50 caracteres.
+            <small class="form-text text-danger" *ngIf="registerForm.get('name')?.errors?.maxlength">
+              O nome não pode ter mais de 255 caracteres.
             </small>
-
-            <small class="form-text text-danger" *ngIf="registerForm.get('login')?.errors?.pattern"> Your username is invalid. </small>
           </div>
         </div>
 
@@ -100,8 +96,6 @@
               A senha não pode ter mais de 50 caracteres
             </small>
           </div>
-
-          <jhi-password-strength-bar [passwordToCheck]="registerForm.get('password')!.value"></jhi-password-strength-bar>
         </div>
 
         <div class="mb-3">
@@ -141,11 +135,7 @@
 
       <div class="mt-3 alert alert-warning">
         <span>Se deseja </span>
-        <a class="alert-link" routerLink="/login">entrar</a
-        ><span
-          >, utilize as seguintes contas padrões:<br />- Administrador (usuário="admin" and senha="admin") <br />- Usuário (usuário="user" e
-          senha="user").</span
-        >
+        <a class="alert-link" routerLink="/login">entrar</a>
       </div>
     </div>
   </div>

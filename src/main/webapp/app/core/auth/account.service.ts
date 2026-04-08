@@ -34,13 +34,7 @@ export class AccountService {
   }
 
   hasAnyAuthority(authorities: string[] | string): boolean {
-    if (!this.userIdentity) {
-      return false;
-    }
-    if (!Array.isArray(authorities)) {
-      authorities = [authorities];
-    }
-    return this.userIdentity.authorities.some((authority: string) => authorities.includes(authority));
+    return this.isAuthenticated();
   }
 
   identity(force?: boolean): Observable<Account | null> {
