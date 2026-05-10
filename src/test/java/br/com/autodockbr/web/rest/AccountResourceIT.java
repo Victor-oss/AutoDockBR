@@ -206,8 +206,6 @@ class AccountResourceIT {
         secondUser.setLangKey(firstUser.getLangKey());
         secondUser.setCreatedBy(firstUser.getCreatedBy());
         secondUser.setCreatedDate(firstUser.getCreatedDate());
-        secondUser.setLastModifiedBy(firstUser.getLastModifiedBy());
-        secondUser.setLastModifiedDate(firstUser.getLastModifiedDate());
 
         // First user
         restAccountMockMvc
