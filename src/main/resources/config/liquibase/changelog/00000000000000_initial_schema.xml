@@ -44,6 +44,18 @@
         <addNotNullConstraint   columnName="password_hash"
                                 columnDataType="varchar(60)"
                                 tableName="usuario"/>
+
+        <loadData
+            file="config/liquibase/data/user.csv"
+            separator=";"
+            tableName="usuario"
+            usePreparedStatements="true"
+        >
+            <column name="id" type="numeric"/>
+            <column name="activated" type="boolean"/>
+            <column name="created_date" type="timestamp"/>
+        </loadData>
+        <dropDefaultValue tableName="usuario" columnName="created_date" columnDataType="${datetimeType}"/>
     </changeSet>
 
     <changeSet author="jhipster" id="00000000000002" context="test">

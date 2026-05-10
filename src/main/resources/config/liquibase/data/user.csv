@@ -1,0 +1,2 @@
+id;email;password_hash;name;activated;created_by
+1;usuario@email.com;$2a$10$VEjxo0jq2YG9Rbk2HmX9S.k1uZBGYUHdUcid3g/vfiEl7lwWgOH/K;User;true;system

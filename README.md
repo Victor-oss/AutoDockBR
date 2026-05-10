@@ -10,7 +10,6 @@ docker-compose -f src/main/docker/postgresql_redis.yml down
 
 ```
 ./mvnw
-npm start
 ```
 
 This application was generated using JHipster 7.9.4, you can find documentation and help at [https://www.jhipster.tech/documentation-archive/v7.9.4](https://www.jhipster.tech/documentation-archive/v7.9.4).
