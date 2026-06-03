@@ -6,7 +6,12 @@ RUN apt-get update && apt-get install -y \
     unzip \
     python \
     python-numpy \
+    curl \
     && rm -rf /var/lib/apt/lists/*
+
+# Instalar kubectl para criar ConfigMap
+RUN curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl" \
+    && chmod +x kubectl && mv kubectl /usr/local/bin/
 
 # Baixar AutoDock 4.2
 RUN wget --no-check-certificate https://autodock.scripps.edu/wp-content/uploads/sites/56/2021/10/autodocksuite-4.2.6-x86_64Linux2.tar \
@@ -26,5 +31,6 @@ RUN wget --no-check-certificate https://ccsb.scripps.edu/mgltools/download/491/ 
 
 ENV LD_LIBRARY_PATH=/opt/mgltools/lib:$LD_LIBRARY_PATH
 ENV PYTHONPATH=/opt/mgltools/MGLToolsPckgs
+ENV PATH=$PATH:/usr/local/bin
 
 WORKDIR /data

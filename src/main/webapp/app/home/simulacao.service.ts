@@ -46,6 +46,12 @@ export class SimulacaoService {
     });
   }
 
+  downloadDump(resourcePath: string): Observable<Blob> {
+    return this.http.get(this.applicationConfigService.getEndpointFor(resourcePath), {
+      responseType: 'blob',
+    });
+  }
+
   protected convertResponseFromServer(res: HttpResponse<ISimulacao>): HttpResponse<ISimulacao> {
     if (res.body) {
       res.body.dataHoraPedido = res.body.dataHoraPedido ? new Date(res.body.dataHoraPedido) : undefined;

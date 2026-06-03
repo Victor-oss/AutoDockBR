@@ -84,14 +84,136 @@ import { SimulacaoService } from './simulacao.service';
   `,
   styles: [
     `
-      .modal-header {
-        background-color: #f8f9fa;
-        border-bottom: 1px solid #dee2e6;
+      :host ::ng-deep .modal-content {
+        background-color: #0b1739;
+        border: 1px solid #1e293b;
+        color: #e2e8f0;
       }
+
+      .modal-header {
+        background-color: #0b1739;
+        border-bottom: 1px solid #1e293b;
+        padding: 16px 20px;
+      }
+
       .modal-title {
         display: flex;
         align-items: center;
         gap: 0.5rem;
+        font-size: 16px;
+        font-weight: 600;
+        color: #e2e8f0;
+        background: #0b1739;
+      }
+
+      :host ::ng-deep .btn-close {
+        filter: invert(1) grayscale(100%) brightness(200%);
+      }
+
+      .modal-body {
+        background-color: #0b1739;
+        padding: 20px;
+      }
+
+      :host ::ng-deep .form-label {
+        color: #94a3b8;
+        font-size: 13px;
+        font-weight: 500;
+        margin-bottom: 6px;
+      }
+
+      :host ::ng-deep .form-control {
+        background-color: #162040;
+        border: 1px solid #1e293b;
+        color: #e2e8f0;
+        border-radius: 6px;
+      }
+
+      :host ::ng-deep .form-control:focus {
+        background-color: #162040;
+        border-color: #cb3cff;
+        color: #e2e8f0;
+        box-shadow: 0 0 0 0.2rem rgba(203, 60, 255, 0.15);
+      }
+
+      :host ::ng-deep .form-control::placeholder {
+        color: #475569;
+      }
+
+      :host ::ng-deep .form-control.is-invalid {
+        border-color: #ff5a65;
+      }
+
+      :host ::ng-deep .form-text {
+        color: #64748b;
+        font-size: 12px;
+      }
+
+      :host ::ng-deep .invalid-feedback {
+        color: #ff5a65;
+        font-size: 12px;
+      }
+
+      :host ::ng-deep .alert-info {
+        background-color: rgba(99, 102, 241, 0.1);
+        border: 1px solid rgba(99, 102, 241, 0.4);
+        color: #a5b4fc;
+        border-radius: 6px;
+        font-size: 13px;
+      }
+
+      :host ::ng-deep .alert-danger {
+        background-color: rgba(255, 90, 101, 0.1);
+        border: 1px solid rgba(255, 90, 101, 0.4);
+        color: #ff5a65;
+        border-radius: 6px;
+        font-size: 13px;
+      }
+
+      .modal-footer {
+        background-color: #0b1739;
+        border-top: 1px solid #1e293b;
+        padding: 14px 20px;
+      }
+
+      :host ::ng-deep .btn-secondary {
+        background-color: transparent;
+        border: 1px solid #334155;
+        color: #94a3b8;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 14px;
+        font-weight: 500;
+        border-radius: 4px;
+      }
+
+      :host ::ng-deep .btn-secondary:hover:not(:disabled) {
+        background-color: #1e293b;
+        border-color: #475569;
+        color: #e2e8f0;
+      }
+
+      :host ::ng-deep .btn-primary {
+        background-color: #cb3cff;
+        border: none;
+        color: #fff;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 14px;
+        font-weight: 500;
+        border-radius: 4px;
+      }
+
+      :host ::ng-deep .btn-primary:hover:not(:disabled) {
+        background-color: #4f46e5;
+      }
+
+      :host ::ng-deep .btn-primary:disabled,
+      :host ::ng-deep .btn-secondary:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
       }
     `,
   ],

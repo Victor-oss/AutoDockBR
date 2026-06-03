@@ -18,7 +18,7 @@ export class LoginComponent implements OnInit, AfterViewInit {
   loginForm = new FormGroup({
     username: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
     password: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
-    rememberMe: new FormControl(false, { nonNullable: true, validators: [Validators.required] }),
+    rememberMe: new FormControl(true, { nonNullable: true, validators: [Validators.required] }),
   });
 
   constructor(private accountService: AccountService, private loginService: LoginService, private router: Router) {}

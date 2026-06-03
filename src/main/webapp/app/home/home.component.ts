@@ -86,16 +86,35 @@ export class HomeComponent implements OnInit, OnDestroy {
     }
   }
 
+  downloadDump(resourcePath: string, fileName: string): void {
+    this.simulacaoService.downloadDump(resourcePath).subscribe(blob => {
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = fileName;
+      a.click();
+      window.URL.revokeObjectURL(url);
+    });
+  }
+
+  downloadNubbedbDump(): void {
+    this.downloadDump('api/dumps-biomoleculas/nubbedb.sdf', 'nubbedb.sdf');
+  }
+
+  downloadSistematXDump(): void {
+    this.downloadDump('api/dumps-biomoleculas/sistemat_x.sdf', 'sistemat_x.sdf');
+  }
+
   getStatusClass(status?: string): string {
     switch (status) {
       case 'CONCLUIDO':
-        return 'badge bg-success';
+        return 'status-sim status-concluido';
       case 'EM_PROGRESSO':
-        return 'badge bg-warning';
+        return 'status-sim status-progresso';
       case 'ERRO':
-        return 'badge bg-danger';
+        return 'status-sim status-erro';
       default:
-        return 'badge bg-secondary';
+        return 'status-sim';
     }
   }
 

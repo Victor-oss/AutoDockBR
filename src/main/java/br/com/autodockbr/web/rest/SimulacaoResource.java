@@ -12,6 +12,8 @@ import java.util.Optional;
 import javax.validation.constraints.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -92,6 +94,20 @@ public class SimulacaoResource {
         headers.setContentLength(simulacao.getResultado().length);
 
         return new ResponseEntity<>(simulacao.getResultado(), headers, HttpStatus.OK);
+    }
+
+    @GetMapping("/dumps-biomoleculas/nubbedb.sdf")
+    public ResponseEntity<Resource> getDumpNubbedb() {
+        Resource file = new ClassPathResource("dumps-biomoleculas/nubbedb.sdf");
+
+        return ResponseEntity.ok().body(file);
+    }
+
+    @GetMapping("/dumps-biomoleculas/sistemat_x.sdf")
+    public ResponseEntity<Resource> getDumpSistematX() {
+        Resource file = new ClassPathResource("dumps-biomoleculas/sistemat_x.sdf");
+
+        return ResponseEntity.ok().body(file);
     }
 
     private boolean isValidPdbFile(MultipartFile file) {

@@ -4,6 +4,15 @@
   </div>
 
   <div *ngIf="account" class="content-wrapper">
+    <div class="dump-links">
+      <a href="" style="color: #cb3cff" (click)="downloadNubbedbDump(); $event.preventDefault()">
+        Baixar dump de biomoléculas do NuBBEDB
+      </a>
+      <br />
+      <a href="" style="color: #cb3cff" (click)="downloadSistematXDump(); $event.preventDefault()">
+        Baixar dump de biomoléculas do Sistemat X
+      </a>
+    </div>
     <div class="simulacoes-card">
       <div class="card-header-custom">
         <div class="header-title">
@@ -55,7 +64,7 @@
                     {{ getStatusLabel(simulacao.status) }}
                   </span>
                 </td>
-                <td class="text-center">
+                <td class="text-center actions-cell">
                   <button
                     type="button"
                     class="btn-download"

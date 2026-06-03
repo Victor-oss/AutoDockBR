@@ -14,7 +14,7 @@ Simulações Page Styles
   h2 {
     font-size: 28px;
     font-weight: 600;
-    color: #333;
+    color: white;
     margin: 0;
   }
 }
@@ -24,10 +24,11 @@ Simulações Page Styles
 }
 
 .simulacoes-card {
-  background: #fff;
+  background: #0b1739;
   border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
   overflow: hidden;
+  border: 1px solid #1e293b;
 }
 
 .card-header-custom {
@@ -35,8 +36,8 @@ Simulações Page Styles
   justify-content: space-between;
   align-items: center;
   padding: 16px 20px;
-  background: #f8f9fa;
-  border-bottom: 1px solid #e9ecef;
+  background: #0b1739;
+  border-bottom: 1px solid #1e293b;
 }
 
 .header-title {
@@ -45,10 +46,10 @@ Simulações Page Styles
   gap: 10px;
   font-size: 16px;
   font-weight: 600;
-  color: #333;
+  color: #e2e8f0;
 
   .header-icon {
-    color: #6c757d;
+    color: #94a3b8;
     font-size: 18px;
   }
 }
@@ -66,7 +67,7 @@ Simulações Page Styles
   font-size: 14px;
   font-weight: 500;
   color: #fff;
-  background-color: #17a2b8;
+  background-color: #cb3cff;
   border: none;
   border-radius: 4px;
   cursor: pointer;
@@ -90,14 +91,14 @@ Simulações Page Styles
   font-size: 14px;
   font-weight: 500;
   color: #fff;
-  background-color: #007bff;
+  background-color: #cb3cff;
   border: none;
   border-radius: 4px;
   cursor: pointer;
   transition: background-color 0.2s;
 
   &:hover {
-    background-color: #0069d9;
+    background-color: #4f46e5;
   }
 }
 
@@ -112,12 +113,12 @@ Simulações Page Styles
   align-items: center;
   justify-content: center;
   padding: 60px 20px;
-  color: #6c757d;
+  color: #64748b;
 
   .loading-icon {
     font-size: 32px;
     margin-bottom: 16px;
-    color: #007bff;
+    color: #6366f1;
   }
 
   p {
@@ -132,24 +133,24 @@ Simulações Page Styles
   align-items: center;
   justify-content: center;
   padding: 60px 20px;
-  color: #6c757d;
+  color: #64748b;
 
   .empty-icon {
     font-size: 48px;
     margin-bottom: 16px;
-    color: #adb5bd;
+    color: #334155;
   }
 
   .empty-title {
     font-size: 16px;
     font-weight: 500;
-    color: #495057;
+    color: #94a3b8;
     margin: 0 0 8px 0;
   }
 
   .empty-subtitle {
     font-size: 14px;
-    color: #6c757d;
+    color: #64748b;
     margin: 0;
   }
 }
@@ -164,16 +165,16 @@ Simulações Page Styles
 
   thead {
     tr {
-      background-color: #f8f9fa;
-      border-bottom: 2px solid #dee2e6;
+      background-color: #0b1739;
+      border-bottom: 1px solid #1e293b;
     }
 
     th {
       padding: 12px 16px;
       text-align: left;
-      font-size: 13px;
+      font-size: 12px;
       font-weight: 600;
-      color: #495057;
+      color: #94a3b8;
       text-transform: uppercase;
       letter-spacing: 0.5px;
       white-space: nowrap;
@@ -181,17 +182,25 @@ Simulações Page Styles
       &.text-center {
         text-align: center;
       }
+
+      .th-content {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .sort-icon {
+        font-size: 10px;
+        color: #475569;
+      }
     }
   }
 
   tbody {
     tr {
-      border-bottom: 1px solid #e9ecef;
+      background-color: #0b1739;
+      border-bottom: 1px solid #1e293b;
       transition: background-color 0.15s;
-
-      &:hover {
-        background-color: #f8f9fa;
-      }
 
       &:last-child {
         border-bottom: none;
@@ -201,7 +210,7 @@ Simulações Page Styles
     td {
       padding: 14px 16px;
       font-size: 14px;
-      color: #333;
+      color: #cbd5e1;
       vertical-align: middle;
 
       &.text-center {
@@ -210,33 +219,42 @@ Simulações Page Styles
     }
   }
 
-  .badge {
+  .status-sim {
     display: inline-block;
-    padding: 6px 12px;
+    padding: 5px 12px;
     font-size: 12px;
-    font-weight: 500;
+    font-weight: 600;
     border-radius: 4px;
+    letter-spacing: 0.2px;
 
-    &.bg-success {
-      background-color: #28a745;
-      color: #fff;
+    &.status-concluido {
+      background: #05c16833;
+      border: 1px solid #05c168;
+      color: #05c168;
+      box-shadow: 0 0 5px rgba(5, 193, 104, 0.5), 0 0 10px rgba(5, 193, 104, 0.25);
     }
 
-    &.bg-warning {
-      background-color: #ffc107;
-      color: #212529;
+    &.status-progresso {
+      background: #ffd54a33;
+      border: 1px solid #ffd54a;
+      color: #ffd54a;
+      box-shadow: 0 0 5px rgba(255, 213, 74, 0.5), 0 0 10px rgba(255, 213, 74, 0.25);
     }
 
-    &.bg-danger {
-      background-color: #dc3545;
-      color: #fff;
-    }
-
-    &.bg-secondary {
-      background-color: #6c757d;
-      color: #fff;
+    &.status-erro {
+      background: #ff5a6533;
+      border: 1px solid #ff5a65;
+      color: #ff5a65;
+      box-shadow: 0 0 5px rgba(255, 90, 101, 0.5), 0 0 10px rgba(255, 90, 101, 0.25);
     }
   }
+}
+
+.actions-cell {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
 }
 
 .btn-download {
@@ -247,20 +265,43 @@ Simulações Page Styles
   height: 32px;
   padding: 0;
   font-size: 14px;
-  color: #fff;
-  background-color: #28a745;
-  border: none;
+  color: #94a3b8;
+  background-color: transparent;
+  border: 1px solid #334155;
   border-radius: 4px;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: color 0.2s, border-color 0.2s;
 
   &:hover:not(:disabled) {
-    background-color: #218838;
+    color: #22c55e;
+    border-color: #22c55e;
   }
 
   &:disabled {
-    background-color: #ccc;
+    color: #334155;
+    border-color: #1e293b;
     cursor: not-allowed;
+  }
+}
+
+.btn-delete {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  font-size: 14px;
+  color: #94a3b8;
+  background-color: transparent;
+  border: 1px solid #334155;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: color 0.2s, border-color 0.2s;
+
+  &:hover {
+    color: #ef4444;
+    border-color: #ef4444;
   }
 }
 
@@ -275,19 +316,19 @@ Simulações Page Styles
   border-radius: 4px;
 
   &.alert-warning {
-    background-color: #fff3cd;
-    border: 1px solid #ffc107;
-    color: #856404;
+    background-color: #1e293b;
+    border: 1px solid #f59e0b;
+    color: #fbbf24;
   }
 
   .alert-link {
-    color: #533f03;
+    color: #f59e0b;
     font-weight: 600;
     text-decoration: underline;
     cursor: pointer;
 
     &:hover {
-      color: #1d1606;
+      color: #fcd34d;
     }
   }
 }

@@ -3,12 +3,6 @@ package br.com.autodockbr.service;
 import br.com.autodockbr.domain.Simulacao;
 import br.com.autodockbr.domain.enumeration.SimulacaoStatus;
 import br.com.autodockbr.repository.SimulacaoRepository;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.InputStreamReader;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.time.Instant;
 import java.util.Optional;
 import org.slf4j.Logger;
@@ -23,147 +17,101 @@ public class DockingAsyncService {
     private final Logger log = LoggerFactory.getLogger(DockingAsyncService.class);
 
     private final SimulacaoRepository simulacaoRepository;
+    private final KubernetesJobService kubernetesJobService;
 
-    private static final String DOCKING_DATA_PATH = System.getProperty("user.home") + "/.AutoDockBR/docking-data";
-    private static final String AUTODOCK_CONTAINER = "autodock";
+    private static final int MAX_POLL_ATTEMPTS = 360; // 30 min máximo (5s * 360)
+    private static final int POLL_INTERVAL_MS = 5000; // 5 segundos
 
-    public DockingAsyncService(SimulacaoRepository simulacaoRepository) {
+    public DockingAsyncService(SimulacaoRepository simulacaoRepository, KubernetesJobService kubernetesJobService) {
         this.simulacaoRepository = simulacaoRepository;
+        this.kubernetesJobService = kubernetesJobService;
     }
 
     @Async
     @Transactional
     public void startDockingAsync(Long simulacaoId, String workDirName, byte[] receptorBytes, byte[] liganteBytes) {
-        log.info("Starting async docking process for simulacao: {}", simulacaoId);
+        log.info("Starting K8s docking job for simulacao: {}", simulacaoId);
 
+        String jobName = null;
         try {
-            Path workDir = Paths.get(DOCKING_DATA_PATH, workDirName);
-            Files.createDirectories(workDir);
+            var inicio = System.currentTimeMillis();
+            jobName = kubernetesJobService.submitDockingJob(simulacaoId, receptorBytes, liganteBytes);
 
-            String receptorFileName = "receptor.pdb";
-            String liganteFileName = "ligand.pdb";
+            boolean completed = waitForJobCompletion(jobName);
+            var fim = System.currentTimeMillis();
+            log.info("Duração do job: {} ms", fim - inicio);
 
-            Path receptorPath = workDir.resolve(receptorFileName);
-            Path ligantePath = workDir.resolve(liganteFileName);
+            if (completed) {
+                byte[] resultBytes = kubernetesJobService.getJobResult(simulacaoId);
 
-            Files.write(receptorPath, receptorBytes);
-            Files.write(ligantePath, liganteBytes);
-
-            String containerWorkDir = "/data/" + workDirName;
-
-            executeDockerCommand(
-                String.format(
-                    "docker exec %s sh -c 'export PYTHONPATH=/opt/mgltools/MGLToolsPckgs && cd %s && python2 /opt/mgltools/MGLToolsPckgs/AutoDockTools/Utilities24/prepare_receptor4.py -r %s -o receptor.pdbqt'",
-                    AUTODOCK_CONTAINER,
-                    containerWorkDir,
-                    receptorFileName
-                )
-            );
-
-            executeDockerCommand(
-                String.format(
-                    "docker exec %s sh -c 'export PYTHONPATH=/opt/mgltools/MGLToolsPckgs && cd %s && python2 /opt/mgltools/MGLToolsPckgs/AutoDockTools/Utilities24/prepare_ligand4.py -l %s -o ligand.pdbqt'",
-                    AUTODOCK_CONTAINER,
-                    containerWorkDir,
-                    liganteFileName
-                )
-            );
-
-            executeDockerCommand(
-                String.format(
-                    "docker exec %s sh -c 'export PYTHONPATH=/opt/mgltools/MGLToolsPckgs && cd %s && python2 /opt/mgltools/MGLToolsPckgs/AutoDockTools/Utilities24/prepare_gpf4.py -r receptor.pdbqt -l ligand.pdbqt -o config.gpf'",
-                    AUTODOCK_CONTAINER,
-                    containerWorkDir
-                )
-            );
-
-            executeDockerCommand(
-                String.format(
-                    "docker exec %s sh -c 'export PYTHONPATH=/opt/mgltools/MGLToolsPckgs && cd %s && autogrid4 -p config.gpf -l autogrid.glg'",
-                    AUTODOCK_CONTAINER,
-                    containerWorkDir
-                )
-            );
-
-            executeDockerCommand(
-                String.format(
-                    "docker exec %s sh -c 'export PYTHONPATH=/opt/mgltools/MGLToolsPckgs && cd %s && python2 /opt/mgltools/MGLToolsPckgs/AutoDockTools/Utilities24/prepare_dpf4.py -r receptor.pdbqt -l ligand.pdbqt -o config.dpf'",
-                    AUTODOCK_CONTAINER,
-                    containerWorkDir
-                )
-            );
-
-            executeDockerCommand(
-                String.format(
-                    "docker exec %s sh -c 'export PYTHONPATH=/opt/mgltools/MGLToolsPckgs && cd %s && autodock4 -p config.dpf -l resultado.dlg'",
-                    AUTODOCK_CONTAINER,
-                    containerWorkDir
-                )
-            );
-
-            Path resultPath = workDir.resolve("resultado.dlg");
-            byte[] resultBytes = Files.readAllBytes(resultPath);
-
-            Optional<Simulacao> optSimulacao = simulacaoRepository.findById(simulacaoId);
-            if (optSimulacao.isPresent()) {
-                Simulacao simulacao = optSimulacao.get();
-                simulacao.setResultado(resultBytes);
-                simulacao.setResultadoContentType("text/plain");
-                simulacao.setTamanhoBytes((long) resultBytes.length);
-                simulacao.setStatus(SimulacaoStatus.CONCLUIDO);
-                simulacao.setDataHoraConclusao(Instant.now());
-                simulacaoRepository.save(simulacao);
-                log.info("Docking completed successfully for simulacao: {}", simulacaoId);
+                if (resultBytes != null && resultBytes.length > 0) {
+                    saveResult(simulacaoId, resultBytes);
+                    log.info("Docking completed successfully for simulacao: {}", simulacaoId);
+                } else {
+                    log.error("No result found for simulacao: {}", simulacaoId);
+                    markAsError(simulacaoId);
+                }
+            } else {
+                log.error("Job failed or timed out for simulacao: {}", simulacaoId);
+                markAsError(simulacaoId);
             }
         } catch (Exception e) {
             log.error("Error during docking process for simulacao: {}", simulacaoId, e);
-
-            Optional<Simulacao> optSimulacao = simulacaoRepository.findById(simulacaoId);
-            if (optSimulacao.isPresent()) {
-                Simulacao simulacao = optSimulacao.get();
-                simulacao.setStatus(SimulacaoStatus.ERRO);
-                simulacao.setDataHoraConclusao(Instant.now());
-                simulacaoRepository.save(simulacao);
-            }
-        }
-    }
-
-    private void executeDockerCommand(String command) throws Exception {
-        log.debug("Executing Docker command: {}", command);
-
-        ProcessBuilder processBuilder = new ProcessBuilder();
-        processBuilder.command("sh", "-c", command);
-        processBuilder.redirectErrorStream(true);
-
-        Process process = processBuilder.start();
-
-        StringBuilder output = new StringBuilder();
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                output.append(line).append("\n");
-                log.debug("Docker output: {}", line);
-            }
-        }
-
-        int exitCode = process.waitFor();
-        if (exitCode != 0) {
-            throw new RuntimeException("Docker command failed with exit code " + exitCode + ": " + output.toString());
-        }
-    }
-
-    @SuppressWarnings("unused")
-    private void deleteDirectory(File directory) {
-        File[] files = directory.listFiles();
-        if (files != null) {
-            for (File file : files) {
-                if (file.isDirectory()) {
-                    deleteDirectory(file);
-                } else {
-                    file.delete();
+            markAsError(simulacaoId);
+        } finally {
+            if (jobName != null) {
+                try {
+                    kubernetesJobService.cleanupJob(simulacaoId);
+                } catch (Exception e) {
+                    log.warn("Error cleaning up job resources for simulacao: {}", simulacaoId, e);
                 }
             }
         }
-        directory.delete();
+    }
+
+    private boolean waitForJobCompletion(String jobName) throws InterruptedException {
+        for (int i = 0; i < MAX_POLL_ATTEMPTS; i++) {
+            String status = kubernetesJobService.getJobStatus(jobName);
+
+            switch (status) {
+                case "SUCCEEDED":
+                    log.warn("Job {} succeeded", jobName);
+                    return true;
+                case "FAILED":
+                case "NOT_FOUND":
+                case "ERROR":
+                    log.warn("Job {} failed", jobName);
+                    return false;
+                case "RUNNING":
+                default:
+                    log.warn("Job {} running", jobName);
+                    Thread.sleep(POLL_INTERVAL_MS);
+            }
+        }
+        log.warn("Job {} timed out after {} attempts", jobName, MAX_POLL_ATTEMPTS);
+        return false;
+    }
+
+    private void saveResult(Long simulacaoId, byte[] resultBytes) {
+        Optional<Simulacao> optSimulacao = simulacaoRepository.findById(simulacaoId);
+        if (optSimulacao.isPresent()) {
+            Simulacao simulacao = optSimulacao.get();
+            simulacao.setResultado(resultBytes);
+            simulacao.setResultadoContentType("text/plain");
+            simulacao.setTamanhoBytes((long) resultBytes.length);
+            simulacao.setStatus(SimulacaoStatus.CONCLUIDO);
+            simulacao.setDataHoraConclusao(Instant.now());
+            simulacaoRepository.save(simulacao);
+        }
+    }
+
+    private void markAsError(Long simulacaoId) {
+        Optional<Simulacao> optSimulacao = simulacaoRepository.findById(simulacaoId);
+        if (optSimulacao.isPresent()) {
+            Simulacao simulacao = optSimulacao.get();
+            simulacao.setStatus(SimulacaoStatus.ERRO);
+            simulacao.setDataHoraConclusao(Instant.now());
+            simulacaoRepository.save(simulacao);
+        }
     }
 }
