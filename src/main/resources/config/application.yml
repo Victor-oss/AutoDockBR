@@ -214,3 +214,4 @@ jhipster:
 kubernetes:
   namespace: ${KUBERNETES_NAMESPACE:autodock}
   autodock-image: ${AUTODOCK_IMAGE:autodock:4.2}
+  autodock-gpu-image: ${AUTODOCK_GPU_IMAGE:autodock-gpu:1.6}
