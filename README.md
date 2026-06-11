@@ -35,7 +35,7 @@ eksctl create cluster \
   --name autodock-cluster \
   --region us-east-2 \
   --nodegroup-name autodock-nodes \
-  --node-type c7i-flex.large \
+  --node-type m7i-flex.large \
   --nodes 3 \
   --nodes-min 1 \
   --nodes-max 3 \

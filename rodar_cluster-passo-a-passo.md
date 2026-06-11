@@ -35,7 +35,7 @@ eksctl create cluster \
   --name $CLUSTER_NAME \
   --region $AWS_REGION \
   --nodegroup-name autodock-nodes \
-  --node-type c7i-flex.large \
+  --node-type m7i-flex.large \
   --nodes 3 \
   --nodes-min 1 \
   --nodes-max 3 \
@@ -105,6 +105,7 @@ kubectl port-forward -n monitoring svc/monitoring-grafana 3000:80
 ```bash
 export KUBERNETES_NAMESPACE=autodock
 export AUTODOCK_IMAGE=<IMG>
+script log.txt
 ```
 
 7 Remover artefatos AWS
