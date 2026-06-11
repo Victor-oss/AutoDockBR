@@ -64,9 +64,9 @@ kubectl create namespace autodock
 kubectl apply -f k8s/rbac.yaml
 ```
 
-6 Rodar docker
+5 Caso não seja teste de estresse, rodar docker
 
-6.5 Adicionar monitoramento Grafana + Prometheus
+6 Adicionar monitoramento Grafana + Prometheus
 
 ```bash
 # Instalar Helm (se necessário)
@@ -100,7 +100,7 @@ kubectl port-forward -n monitoring svc/monitoring-grafana 3000:80
 # Acesse http://localhost:3000
 ```
 
-5 Variávei de ambiente antes de rodar o Spring Boot
+7 Caso não seja teste de estresse, variáveis de ambiente antes de rodar o Spring Boot
 
 ```bash
 export KUBERNETES_NAMESPACE=autodock
@@ -108,7 +108,14 @@ export AUTODOCK_IMAGE=<IMG>
 script log.txt
 ```
 
-7 Remover artefatos AWS
+7.1 Caso seja teste de estresse, rodar script do arquivo de log e rodar script de monitoramento
+
+8 Remover artefatos AWS
+
+# Caso seja teste de estresse
+
+kubectl delete jobs -n autodock -l test=stress
+kubectl delete configmap stress-input -n autodock
 
 # 0. Remover monitoramento
 
@@ -146,3 +153,62 @@ Debug
 kubectl get pods -n autodock
 
 kubectl logs nome-pod -n autodock
+
+Verificar exclusões
+
+# 1. ECR — repositório deve não existir
+
+aws ecr describe-repositories --repository-names autodock --region $AWS_REGION
+
+# Esperado: RepositoryNotFoundException
+
+# 2. EKS — cluster deve não existir
+
+aws eks describe-cluster --name $CLUSTER_NAME --region $AWS_REGION
+
+# Esperado: ResourceNotFoundException
+
+# 3. CloudFormation — stacks do eksctl devem não existir
+
+aws cloudformation list-stacks --region $AWS_REGION \
+ --stack-status-filter CREATE_COMPLETE UPDATE_COMPLETE \
+ --query "StackSummaries[?contains(StackName,'autodock')]"
+
+# Esperado: []
+
+# 4. Node Groups (caso o cluster ainda exista parcialmente)
+
+aws eks list-nodegroups --cluster-name $CLUSTER_NAME --region $AWS_REGION
+
+# Esperado: ResourceNotFoundException
+
+# 5. VPC criada pelo eksctl (pode sobrar se a deleção falhar)
+
+aws ec2 describe-vpcs --region $AWS_REGION \
+  --filters "Name=tag:alpha.eksctl.io/cluster-name,Values=$CLUSTER_NAME" \
+ --query "Vpcs[*].{VpcId:VpcId,State:State}"
+
+# Esperado: []
+
+# 6. Elastic Load Balancers (Grafana criou um com service.type=LoadBalancer)
+
+aws elbv2 describe-load-balancers --region $AWS_REGION \
+ --query "LoadBalancers[?contains(LoadBalancerName,'autodock') || contains(LoadBalancerName,'k8s')]"
+
+# Esperado: [] (ou nenhum relacionado)
+
+# 7. ENIs órfãs (impedem deleção da VPC)
+
+aws ec2 describe-network-interfaces --region $AWS_REGION \
+ --filters "Name=group-name,Values=_autodock_" \
+ --query "NetworkInterfaces[*].{Id:NetworkInterfaceId,Status:Status}"
+
+# Esperado: []
+
+# 8. NAT Gateways (eksctl cria, pode demorar a deletar)
+
+aws ec2 describe-nat-gateways --region $AWS_REGION \
+  --filter "Name=tag:alpha.eksctl.io/cluster-name,Values=$CLUSTER_NAME" \
+ --query "NatGateways[?State!='deleted']"
+
+# Esperado: []
