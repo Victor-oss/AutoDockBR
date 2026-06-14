@@ -7,12 +7,16 @@
 - `eksctl` e `kubectl` instalados
 - Conta AWS com permissão para criar EKS, ECR, e instâncias GPU
 
+Listar profiles
+
+aws configure list-profiles
+
 ## Variáveis de ambiente
 
 ```bash
 export AWS_PROFILE=<profilecriado>
 export AWS_REGION=us-east-2
-export CLUSTER_NAME=autodock-gpu-cluster
+export CLUSTER_NAME=autodock-cluster
 export ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
 ```
 
@@ -31,7 +35,7 @@ docker tag autodock-gpu:1.6 $ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/autodo
 docker push $ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/autodock-gpu:1.6
 ```
 
-> **Nota:** O build pode demorar pois compila o AutoDock-GPU com CUDA. Requer uma máquina com NVIDIA GPU + CUDA toolkit para build, ou use `docker buildx` com `--platform linux/amd64`.
+> **Nota:** O build pode demorar pois compila o AutoDock-GPU com CUDA, mas **não exige GPU local**. A imagem base `nvidia/cuda:12.4.0-devel-ubuntu22.04` já inclui o compilador `nvcc` e os headers CUDA necessários para compilar. A GPU só é exigida em runtime, nos nós `g6f.large` do EKS.
 
 ## 2. Criar Cluster EKS com nós GPU (g6f.large)
 
@@ -41,9 +45,9 @@ eksctl create cluster \
   --region $AWS_REGION \
   --nodegroup-name autodock-gpu-nodes \
   --node-type g6f.large \
-  --nodes 2 \
+  --nodes 3 \
   --nodes-min 1 \
-  --nodes-max 4 \
+  --nodes-max 3 \
   --managed
 ```
 
@@ -94,8 +98,6 @@ export AUTODOCK_GPU_IMAGE=$ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/autodock
 ## 7. Monitoramento (opcional) - Grafana + Prometheus
 
 ```bash
-curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
-
 helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
 helm repo update
 
@@ -107,22 +109,13 @@ helm install monitoring prometheus-community/kube-prometheus-stack \
   --set grafana.service.type=LoadBalancer
 ```
 
-Para monitorar métricas de GPU, instale o DCGM Exporter:
+Aguardar o Grafana ficar disponível:
 
 ```bash
-helm repo add gpu-helm-charts https://nvidia.github.io/dcgm-exporter/helm-charts
-helm repo update
+kubectl get pods -n monitoring
 
-helm install dcgm-exporter gpu-helm-charts/dcgm-exporter \
-  --namespace monitoring \
-  --set serviceMonitor.enabled=true
-```
-
-Acessar Grafana:
-
-```bash
-kubectl port-forward -n monitoring svc/monitoring-grafana 3000:80
-# http://localhost:3000 (user: admin / senha: admin123)
+kubectl get svc -n monitoring monitoring-grafana
+# Acesse o EXTERNAL-IP na porta 80 (user: admin / senha: admin)
 ```
 
 ## 8. Remover artefatos AWS

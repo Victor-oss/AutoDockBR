@@ -17,14 +17,14 @@ public class DockingAsyncService {
     private final Logger log = LoggerFactory.getLogger(DockingAsyncService.class);
 
     private final SimulacaoRepository simulacaoRepository;
-    private final KubernetesJobService kubernetesJobService;
+    private final KubernetesGpuJobService kubernetesGpuJobService;
 
     private static final int MAX_POLL_ATTEMPTS = 360; // 30 min máximo (5s * 360)
     private static final int POLL_INTERVAL_MS = 5000; // 5 segundos
 
-    public DockingAsyncService(SimulacaoRepository simulacaoRepository, KubernetesJobService kubernetesJobService) {
+    public DockingAsyncService(SimulacaoRepository simulacaoRepository, KubernetesGpuJobService kubernetesGpuJobService) {
         this.simulacaoRepository = simulacaoRepository;
-        this.kubernetesJobService = kubernetesJobService;
+        this.kubernetesGpuJobService = kubernetesGpuJobService;
     }
 
     @Async
@@ -35,14 +35,14 @@ public class DockingAsyncService {
         String jobName = null;
         try {
             var inicio = System.currentTimeMillis();
-            jobName = kubernetesJobService.submitDockingJob(simulacaoId, receptorBytes, liganteBytes);
+            jobName = kubernetesGpuJobService.submitGpuDockingJob(simulacaoId, receptorBytes, liganteBytes);
 
             boolean completed = waitForJobCompletion(jobName);
             var fim = System.currentTimeMillis();
             log.info("Duração do job: {} ms", fim - inicio);
 
             if (completed) {
-                byte[] resultBytes = kubernetesJobService.getJobResult(simulacaoId);
+                byte[] resultBytes = kubernetesGpuJobService.getJobResult(simulacaoId);
 
                 if (resultBytes != null && resultBytes.length > 0) {
                     saveResult(simulacaoId, resultBytes);
@@ -61,7 +61,7 @@ public class DockingAsyncService {
         } finally {
             if (jobName != null) {
                 try {
-                    kubernetesJobService.cleanupJob(simulacaoId);
+                    kubernetesGpuJobService.cleanupJob(simulacaoId);
                 } catch (Exception e) {
                     log.warn("Error cleaning up job resources for simulacao: {}", simulacaoId, e);
                 }
@@ -71,7 +71,7 @@ public class DockingAsyncService {
 
     private boolean waitForJobCompletion(String jobName) throws InterruptedException {
         for (int i = 0; i < MAX_POLL_ATTEMPTS; i++) {
-            String status = kubernetesJobService.getJobStatus(jobName);
+            String status = kubernetesGpuJobService.getJobStatus(jobName);
 
             switch (status) {
                 case "SUCCEEDED":
