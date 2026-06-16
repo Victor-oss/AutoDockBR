@@ -60,14 +60,6 @@ aws eks update-kubeconfig --region $AWS_REGION --name $CLUSTER_NAME
 kubectl get nodes
 ```
 
-## 4. Instalar NVIDIA Device Plugin para Kubernetes
-
-O device plugin permite que os pods solicitem GPUs via `nvidia.com/gpu`.
-
-```bash
-kubectl apply -f https://raw.githubusercontent.com/NVIDIA/k8s-device-plugin/v0.17.0/deployments/static/nvidia-device-plugin.yml
-```
-
 Verificar que o plugin está rodando:
 
 ```bash
@@ -121,15 +113,12 @@ kubectl get svc -n monitoring monitoring-grafana
 ## 8. Remover artefatos AWS
 
 ```bash
-# Remover monitoramento
 helm uninstall dcgm-exporter --namespace monitoring
 helm uninstall monitoring --namespace monitoring
 kubectl delete namespace monitoring
 
-# Remover namespace autodock (apaga RBAC, jobs, configmaps)
 kubectl delete namespace autodock
 
-# Deletar cluster EKS
 eksctl delete cluster \
   --name $CLUSTER_NAME \
   --region $AWS_REGION
