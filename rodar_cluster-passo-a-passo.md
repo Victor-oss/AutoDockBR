@@ -29,7 +29,7 @@ export AUTODOCK_IMAGE=$ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/autodock:4.2
 aws ecr create-repository --repository-name autodock --region $AWS_REGION
 
 aws ecr get-login-password --region $AWS_REGION | \
-docker login --username AWS --password-stdin $ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com
+docker login --username AWS --password-stdin $AUTODOCK_IMAGE
 
 docker build -t autodock:4.2 -f src/main/docker/Dockerfile src/main/docker/
 
@@ -100,7 +100,7 @@ kubectl get svc -n monitoring monitoring-grafana
 
 ## 8. Remover artefatos AWS
 
-### Caso seja teste de estresse, use o comando abaixo para remover os jobs:
+### Caso seja teste de estresse, use os comandos abaixo para remover os jobs:
 
 ```
 kubectl delete jobs -n autodock -l test=stress
@@ -114,7 +114,7 @@ helm uninstall monitoring --namespace monitoring
 kubectl delete namespace monitoring
 ```
 
-### Remover recursos Kubernetes (namespace apaga tudo dentro: RBAC, jobs, configmaps):
+### Remover recursos Kubernetes:
 
 ```bash
 kubectl delete namespace autodock
