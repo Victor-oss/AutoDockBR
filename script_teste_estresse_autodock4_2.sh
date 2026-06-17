@@ -43,16 +43,20 @@ spec:
         command: ["sh", "-c"]
         args:
         - |
-          cd /data
-          cp /input/receptor.pdb .
-          cp /input/ligand.pdb .
-          python2 /opt/mgltools/MGLToolsPckgs/AutoDockTools/Utilities24/prepare_receptor4.py -r receptor.pdb -o receptor.pdbqt
-          python2 /opt/mgltools/MGLToolsPckgs/AutoDockTools/Utilities24/prepare_ligand4.py -l ligand.pdb -o ligand.pdbqt
-          python2 /opt/mgltools/MGLToolsPckgs/AutoDockTools/Utilities24/prepare_gpf4.py -r receptor.pdbqt -l ligand.pdbqt -o config.gpf
-          autogrid4 -p config.gpf -l autogrid.glg
-          python2 /opt/mgltools/MGLToolsPckgs/AutoDockTools/Utilities24/prepare_dpf4.py -r receptor.pdbqt -l ligand.pdbqt -o config.dpf
-          autodock4 -p config.dpf -l resultado.dlg
-          echo "Done"
+"cd /data
+cp /input/receptor.pdb .
+cp /input/ligand.pdb .
+python2 /opt/mgltools/MGLToolsPckgs/AutoDockTools/Utilities24/prepare_receptor4.py \
+-r receptor.pdb -o receptor.pdbqt
+python2 /opt/mgltools/MGLToolsPckgs/AutoDockTools/Utilities24/prepare_ligand4.py \
+-l ligand.pdb -o ligand.pdbqt
+python2 /opt/mgltools/MGLToolsPckgs/AutoDockTools/Utilities24/prepare_gpf4.py \
+-r receptor.pdbqt -l ligand.pdbqt -o config.gpf
+autogrid4 -p config.gpf -l autogrid.glg
+python2 /opt/mgltools/MGLToolsPckgs/AutoDockTools/Utilities24/prepare_dpf4.py \
+-r receptor.pdbqt -l ligand.pdbqt -o config.dpf
+autodock4 -p config.dpf -l resultado.dlg
+echo "Done""
         resources:
           requests:
             memory: "1Gi"
@@ -80,4 +84,3 @@ echo "Todos os $N jobs submetidos em $((END - START))s"
 echo ""
 echo "Monitorar com:"
 echo "  watch kubectl get jobs -n $NAMESPACE -l test=stress"
-echo "  kubectl get pods -n $NAMESPACE -l test=stress --field-selector=status.phase=Pending"
