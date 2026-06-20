@@ -1,0 +1,47 @@
+FROM nvidia/cuda:12.4.0-devel-ubuntu22.04
+
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    wget \
+    unzip \
+    curl \
+    python3 \
+    python3-numpy \
+    && rm -rf /var/lib/apt/lists/*
+
+# Instalar kubectl para criar ConfigMap
+RUN curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl" \
+    && chmod +x kubectl && mv kubectl /usr/local/bin/
+
+# Baixar e compilar AutoDock-GPU 1.6
+RUN wget --no-check-certificate https://github.com/ccsb-scripps/AutoDock-GPU/archive/refs/tags/v1.6.tar.gz \
+    && tar -zxvf v1.6.tar.gz \
+    && cd AutoDock-GPU-1.6 \
+    && export GPU_INCLUDE_PATH=/usr/local/cuda/include \
+    && export GPU_LIBRARY_PATH=/usr/local/cuda/lib64 \
+    && make DEVICE=GPU NUMWI=128 \
+    && cp bin/autodock_gpu_128wi /usr/local/bin/ \
+    && cd / && rm -rf AutoDock-GPU-1.6 v1.6.tar.gz
+
+# Baixar AutoDock 4.2 (apenas para autogrid4)
+RUN wget --no-check-certificate https://autodock.scripps.edu/wp-content/uploads/sites/56/2021/10/autodocksuite-4.2.6-x86_64Linux2.tar \
+    && tar -xvf autodocksuite-4.2.6-x86_64Linux2.tar \
+    && mv x86_64Linux2/autogrid4 /usr/local/bin \
+    && chmod +x /usr/local/bin/autogrid4 \
+    && rm -rf x86_64Linux2 autodocksuite-4.2.6-x86_64Linux2.tar
+
+RUN wget --no-check-certificate https://ccsb.scripps.edu/mgltools/download/491/ \
+    -O mgltools.tar.gz \
+    && tar -xvf mgltools.tar.gz \
+    && mv mgltools_* /opt/mgltools \
+    && tar -xvf /opt/mgltools/MGLToolsPckgs.tar.gz -C /opt/mgltools/ \
+    && rm /opt/mgltools/MGLToolsPckgs.tar.gz \
+    && rm mgltools.tar.gz \
+    && ./opt/mgltools/install.sh
+
+ENV LD_LIBRARY_PATH=/opt/mgltools/lib:$LD_LIBRARY_PATH
+ENV PYTHONPATH=/opt/mgltools/MGLToolsPckgs
+ENV PATH=$PATH:/usr/local/bin
+ENV LD_LIBRARY_PATH="/usr/local/cuda/lib64:${LD_LIBRARY_PATH}"
+
+WORKDIR /data
