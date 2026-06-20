@@ -1,6 +1,123 @@
 # AutoDockBR
 
+```
+docker-compose -f src/main/docker/postgresql_redis.yml up
+```
+
+```
+docker-compose -f src/main/docker/postgresql_redis.yml down
+```
+
+Buildar Java
+
+```bash
+mvn install -DskipTests -Dmodernizer.skip=true
+```
+
+```
+./mvnw
+```
+
 This application was generated using JHipster 7.9.4, you can find documentation and help at [https://www.jhipster.tech/documentation-archive/v7.9.4](https://www.jhipster.tech/documentation-archive/v7.9.4).
+
+# Criando cluster na AWS
+
+Para isso, criei um profile de um usuário da AWS e defini ele como o padrão no meu terminal
+
+```bash
+export AWS_PROFILE=profile-criado
+```
+
+Em seguida, criei os nós
+
+```bash
+eksctl create cluster \
+  --name autodock-cluster \
+  --region us-east-2 \
+  --nodegroup-name autodock-nodes \
+  --node-type m7i-flex.large \
+  --nodes 3 \
+  --nodes-min 1 \
+  --nodes-max 3 \
+  --managed
+```
+
+Atualizar kubeconfig
+
+```bash
+aws eks --region us-east-2 update-kubeconfig --name autodock-cluster
+```
+
+Testar acesso
+
+```bash
+kubectl get nodes
+```
+
+Resultado esperado:
+
+```text
+ip-xxx   Ready
+ip-yyy   Ready
+```
+
+Criar repositório no Amazon ECR
+
+```bash
+aws ecr create-repository --repository-name autodock
+```
+
+Login no ECR
+
+```bash
+aws ecr get-login-password --region us-east-2 | \
+docker login --username AWS --password-stdin <SEU_ACCOUNT_ID>.dkr.ecr.us-east-2.amazonaws.com
+```
+
+Tag da imagem
+
+```bash
+docker tag autodock:4.2 <ACCOUNT_ID>.dkr.ecr.us-east-2.amazonaws.com/autodock:4.2
+```
+
+Push da imagem
+
+```bash
+docker push <ACCOUNT_ID>.dkr.ecr.us-east-2.amazonaws.com/autodock:4.2
+```
+
+# Deletar tudo que está sendo descontado na AWS
+
+Apagar cluster
+
+```bash
+eksctl delete cluster --name autodock-cluster --region us-east-2
+```
+
+Apagar repositório no Amazon ECR
+
+```bash
+aws ecr delete-repository \
+  --repository-name autodock \
+  --region us-east-2 \
+  --force
+```
+
+--force remove imagens também
+
+Verifique por volumes EBS (raro, mas possível)
+
+```bash
+aws ec2 describe-volumes --region us-east-2
+```
+
+Se tiver volumes sobrando, delete no console AWS
+
+Verifique também por Elastic IP (se criou manualmente)
+
+```bash
+aws ec2 describe-addresses --region us-east-2
+```
 
 ## Project Structure
 
@@ -58,11 +175,6 @@ the same CacheManager.
 
 Run the following commands in two separate terminals to create a blissful development experience where your browser
 auto-refreshes when files change on your hard drive.
-
-```
-./mvnw
-npm start
-```
 
 Npm is also used to manage CSS and JavaScript dependencies used in this application. You can upgrade dependencies by
 specifying a newer version in [package.json](package.json). You can also run `npm update` and `npm install` to manage dependencies.

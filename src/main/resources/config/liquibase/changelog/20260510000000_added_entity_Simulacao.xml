@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd
+                        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+    <changeSet id="20260510000000-1" author="Victor-oss">
+        <createTable tableName="simulacao">
+            <column name="id" type="bigint">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="nome" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="usuario_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="status" type="varchar(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="resultado" type="${blobType}">
+                <constraints nullable="true"/>
+            </column>
+            <column name="resultado_content_type" type="varchar(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="tamanho_bytes" type="bigint">
+                <constraints nullable="true"/>
+            </column>
+            <column name="data_hora_pedido" type="${datetimeType}">
+                <constraints nullable="false"/>
+            </column>
+            <column name="data_hora_conclusao" type="${datetimeType}">
+                <constraints nullable="true"/>
+            </column>
+        </createTable>
+
+        <addForeignKeyConstraint baseColumnNames="usuario_id"
+            baseTableName="simulacao"
+            constraintName="fk_simulacao_usuario_id"
+            referencedColumnNames="id"
+            referencedTableName="usuario"/>
+    </changeSet>
+</databaseChangeLog>

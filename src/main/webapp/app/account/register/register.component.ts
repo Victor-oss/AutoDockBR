@@ -2,7 +2,7 @@ import { Component, AfterViewInit, ElementRef, ViewChild } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 
-import { EMAIL_ALREADY_USED_TYPE, LOGIN_ALREADY_USED_TYPE } from 'app/config/error.constants';
+import { EMAIL_ALREADY_USED_TYPE } from 'app/config/error.constants';
 import { RegisterService } from './register.service';
 
 @Component({
@@ -10,24 +10,18 @@ import { RegisterService } from './register.service';
   templateUrl: './register.component.html',
 })
 export class RegisterComponent implements AfterViewInit {
-  @ViewChild('login', { static: false })
-  login?: ElementRef;
+  @ViewChild('name', { static: false })
+  nameInput?: ElementRef;
 
   doNotMatch = false;
   error = false;
   errorEmailExists = false;
-  errorUserExists = false;
   success = false;
 
   registerForm = new FormGroup({
-    login: new FormControl('', {
+    name: new FormControl('', {
       nonNullable: true,
-      validators: [
-        Validators.required,
-        Validators.minLength(1),
-        Validators.maxLength(50),
-        Validators.pattern('^[a-zA-Z0-9!$&*+=?^_`{|}~.-]+@[a-zA-Z0-9-]+(?:\\.[a-zA-Z0-9-]+)*$|^[_.@A-Za-z0-9-]+$'),
-      ],
+      validators: [Validators.required, Validators.minLength(4), Validators.maxLength(255)],
     }),
     email: new FormControl('', {
       nonNullable: true,
@@ -46,8 +40,8 @@ export class RegisterComponent implements AfterViewInit {
   constructor(private registerService: RegisterService) {}
 
   ngAfterViewInit(): void {
-    if (this.login) {
-      this.login.nativeElement.focus();
+    if (this.nameInput) {
+      this.nameInput.nativeElement.focus();
     }
   }
 
@@ -55,23 +49,20 @@ export class RegisterComponent implements AfterViewInit {
     this.doNotMatch = false;
     this.error = false;
     this.errorEmailExists = false;
-    this.errorUserExists = false;
 
     const { password, confirmPassword } = this.registerForm.getRawValue();
     if (password !== confirmPassword) {
       this.doNotMatch = true;
     } else {
-      const { login, email } = this.registerForm.getRawValue();
+      const { name, email } = this.registerForm.getRawValue();
       this.registerService
-        .save({ login, email, password, langKey: 'pt-br' })
+        .save({ name, email, password })
         .subscribe({ next: () => (this.success = true), error: response => this.processError(response) });
     }
   }
 
   private processError(response: HttpErrorResponse): void {
-    if (response.status === 400 && response.error.type === LOGIN_ALREADY_USED_TYPE) {
-      this.errorUserExists = true;
-    } else if (response.status === 400 && response.error.type === EMAIL_ALREADY_USED_TYPE) {
+    if (response.status === 400 && response.error.type === EMAIL_ALREADY_USED_TYPE) {
       this.errorEmailExists = true;
     } else {
       this.error = true;

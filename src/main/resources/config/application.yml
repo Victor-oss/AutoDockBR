@@ -211,3 +211,6 @@ jhipster:
 # ===================================================================
 
 # application:
+kubernetes:
+  namespace: ${KUBERNETES_NAMESPACE:autodock}
+  autodock-image: ${AUTODOCK_IMAGE:autodock:4.2}

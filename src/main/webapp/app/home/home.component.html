@@ -1,56 +1,85 @@
-<div class="row">
-  <div class="col-md-3">
-    <span class="hipster img-fluid rounded"></span>
+<div class="simulacoes-container">
+  <div class="page-header">
+    <h2>Simulações</h2>
   </div>
 
-  <div class="col-md-9">
-    <h1 class="display-4"><span>Bem vindo, Java Hipster!</span> (Auto Dock BR)</h1>
-
-    <p class="lead">Esta é a página principal</p>
-
-    <div [ngSwitch]="account !== null">
-      <div class="alert alert-success" *ngSwitchCase="true">
-        <span id="home-logged-message" *ngIf="account">Você está logado como "{{ account.login }}".</span>
+  <div *ngIf="account" class="content-wrapper">
+    <div class="dump-links">
+      <a href="" style="color: #cb3cff" (click)="downloadNubbedbDump(); $event.preventDefault()">
+        Baixar dump de biomoléculas do NuBBEDB
+      </a>
+      <br />
+      <a href="" style="color: #cb3cff" (click)="downloadSistematXDump(); $event.preventDefault()">
+        Baixar dump de biomoléculas do Sistemat X
+      </a>
+    </div>
+    <div class="simulacoes-card">
+      <div class="card-header-custom">
+        <div class="header-title">
+          <fa-icon icon="flask" class="header-icon"></fa-icon>
+          <span>Minhas Simulações de Docking</span>
+        </div>
+        <div class="header-actions">
+          <button type="button" class="btn-refresh" (click)="loadSimulacoes()" [disabled]="isLoading">
+            <fa-icon icon="sync" [spin]="isLoading"></fa-icon>
+            Atualizar
+          </button>
+          <button type="button" class="btn-new" (click)="openNovaSimulacaoModal()">
+            <fa-icon icon="plus"></fa-icon>
+            Nova Simulação
+          </button>
+        </div>
       </div>
 
-      <div class="alert alert-warning" *ngSwitchCase="false">
-        <span>Se deseja </span>
-        <a class="alert-link" (click)="login()">entrar</a
-        ><span
-          >, utilize as seguintes contas padrões:<br />- Administrador (usuário="admin" and senha="admin") <br />- Usuário (usuário="user" e
-          senha="user").</span
-        >
-      </div>
+      <div class="card-body-custom">
+        <div *ngIf="isLoading" class="loading-state">
+          <fa-icon icon="spinner" [spin]="true" class="loading-icon"></fa-icon>
+          <p>Carregando simulações...</p>
+        </div>
 
-      <div class="alert alert-warning" *ngSwitchCase="false">
-        <span>Não possui uma conta ainda?</span>&nbsp;
-        <a class="alert-link" routerLink="account/register">Crie uma nova conta</a>
+        <div *ngIf="!isLoading && simulacoes.length === 0" class="empty-state">
+          <fa-icon icon="flask" class="empty-icon"></fa-icon>
+          <p class="empty-title">Nenhuma simulação encontrada.</p>
+          <p class="empty-subtitle">Clique em "Nova Simulação" para iniciar um processo de docking molecular.</p>
+        </div>
+
+        <div *ngIf="!isLoading && simulacoes.length > 0" class="table-wrapper">
+          <table class="simulacoes-table">
+            <thead>
+              <tr>
+                <th>Nome</th>
+                <th>Data/Hora Geração</th>
+                <th>Tamanho</th>
+                <th>Status</th>
+                <th class="text-center">Ações</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let simulacao of simulacoes">
+                <td>{{ simulacao.nome }}</td>
+                <td>{{ simulacao.dataHoraPedido | date: 'dd/MM/yyyy HH:mm:ss' }}</td>
+                <td>{{ formatSize(simulacao.tamanhoBytes) }}</td>
+                <td>
+                  <span [class]="getStatusClass(simulacao.status)">
+                    {{ getStatusLabel(simulacao.status) }}
+                  </span>
+                </td>
+                <td class="text-center actions-cell">
+                  <button
+                    type="button"
+                    class="btn-download"
+                    [disabled]="simulacao.status !== 'CONCLUIDO'"
+                    (click)="downloadResultado(simulacao)"
+                    title="Baixar resultado"
+                  >
+                    <fa-icon icon="download"></fa-icon>
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
-
-    <p>Em caso de dúvida sobre o JHipster:</p>
-
-    <ul>
-      <li><a href="https://www.jhipster.tech/" target="_blank" rel="noopener noreferrer">Página principal JHipster</a></li>
-      <li>
-        <a href="https://stackoverflow.com/tags/jhipster/info" target="_blank" rel="noopener noreferrer">JHipster no Stack Overflow</a>
-      </li>
-      <li>
-        <a href="https://github.com/jhipster/generator-jhipster/issues?state=open" target="_blank" rel="noopener noreferrer"
-          >JHipster bug tracker</a
-        >
-      </li>
-      <li>
-        <a href="https://gitter.im/jhipster/generator-jhipster" target="_blank" rel="noopener noreferrer"
-          >Sala de bate-papo pública JHipster</a
-        >
-      </li>
-      <li><a href="https://twitter.com/jhipster" target="_blank" rel="noopener noreferrer">siga @jhipster no Twitter</a></li>
-    </ul>
-
-    <p>
-      <span>Se você gosta do JHipster, não se esqueça de avaliar no</span>
-      <a href="https://github.com/jhipster/generator-jhipster" target="_blank" rel="noopener noreferrer">GitHub</a>!
-    </p>
   </div>
 </div>

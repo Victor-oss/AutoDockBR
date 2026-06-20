@@ -23,7 +23,6 @@ import org.springframework.transaction.annotation.Transactional;
 @IntegrationTest
 class DomainUserDetailsServiceIT {
 
-    private static final String USER_ONE_LOGIN = "test-user-one";
     private static final String USER_ONE_EMAIL = "test-user-one@localhost";
     private static final String USER_TWO_LOGIN = "test-user-two";
     private static final String USER_TWO_EMAIL = "test-user-two@localhost";
@@ -40,48 +39,39 @@ class DomainUserDetailsServiceIT {
     @BeforeEach
     public void init() {
         User userOne = new User();
-        userOne.setLogin(USER_ONE_LOGIN);
         userOne.setPassword(RandomStringUtils.randomAlphanumeric(60));
         userOne.setActivated(true);
         userOne.setEmail(USER_ONE_EMAIL);
-        userOne.setFirstName("userOne");
-        userOne.setLastName("doe");
-        userOne.setLangKey("en");
+        userOne.setName("userOne");
         userRepository.save(userOne);
 
         User userTwo = new User();
-        userTwo.setLogin(USER_TWO_LOGIN);
         userTwo.setPassword(RandomStringUtils.randomAlphanumeric(60));
         userTwo.setActivated(true);
         userTwo.setEmail(USER_TWO_EMAIL);
-        userTwo.setFirstName("userTwo");
-        userTwo.setLastName("doe");
-        userTwo.setLangKey("en");
+        userTwo.setName("userTwo");
         userRepository.save(userTwo);
 
         User userThree = new User();
-        userThree.setLogin(USER_THREE_LOGIN);
         userThree.setPassword(RandomStringUtils.randomAlphanumeric(60));
         userThree.setActivated(false);
         userThree.setEmail(USER_THREE_EMAIL);
-        userThree.setFirstName("userThree");
-        userThree.setLastName("doe");
-        userThree.setLangKey("en");
+        userThree.setName("userThree");
         userRepository.save(userThree);
     }
 
     @Test
     void assertThatUserCanBeFoundByLogin() {
-        UserDetails userDetails = domainUserDetailsService.loadUserByUsername(USER_ONE_LOGIN);
+        UserDetails userDetails = domainUserDetailsService.loadUserByUsername(USER_ONE_EMAIL);
         assertThat(userDetails).isNotNull();
-        assertThat(userDetails.getUsername()).isEqualTo(USER_ONE_LOGIN);
+        assertThat(userDetails.getUsername()).isEqualTo(USER_ONE_EMAIL);
     }
 
     @Test
     void assertThatUserCanBeFoundByLoginIgnoreCase() {
-        UserDetails userDetails = domainUserDetailsService.loadUserByUsername(USER_ONE_LOGIN.toUpperCase(Locale.ENGLISH));
+        UserDetails userDetails = domainUserDetailsService.loadUserByUsername(USER_ONE_EMAIL.toUpperCase(Locale.ENGLISH));
         assertThat(userDetails).isNotNull();
-        assertThat(userDetails.getUsername()).isEqualTo(USER_ONE_LOGIN);
+        assertThat(userDetails.getUsername()).isEqualTo(USER_ONE_EMAIL);
     }
 
     @Test
@@ -102,7 +92,7 @@ class DomainUserDetailsServiceIT {
     void assertThatEmailIsPrioritizedOverLogin() {
         UserDetails userDetails = domainUserDetailsService.loadUserByUsername(USER_ONE_EMAIL);
         assertThat(userDetails).isNotNull();
-        assertThat(userDetails.getUsername()).isEqualTo(USER_ONE_LOGIN);
+        assertThat(userDetails.getUsername()).isEqualTo(USER_ONE_EMAIL);
     }
 
     @Test
